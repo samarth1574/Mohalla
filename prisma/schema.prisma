@@ -1,0 +1,770 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum PostType {
+  GENERAL
+  POLL
+  EMERGENCY
+  LOST_FOUND
+}
+
+enum EmergencyCategory {
+  MEDICAL
+  BLOOD_DONATION
+  MISSING_PERSON
+  SAFETY_ALERT
+  ACCIDENT
+  WOMEN_SAFETY
+  NATURAL_DISASTER
+}
+
+enum ListingType {
+  BUY
+  SELL
+  RENT
+  EXCHANGE
+}
+
+enum ListingCategory {
+  ELECTRONICS
+  VEHICLES
+  FURNITURE
+  BOOKS
+  FASHION
+  APPLIANCES
+  RENTALS
+  JOBS
+  SERVICES
+  OTHER
+}
+
+enum ListingStatus {
+  AVAILABLE
+  SOLD
+  RENTED
+  EXCHANGED
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum RSVPStatus {
+  GOING
+  INTERESTED
+  NOT_GOING
+}
+
+enum ReputationBadge {
+  TRUSTED_NEIGHBOR
+  HELPFUL_MEMBER
+  COMMUNITY_LEADER
+  TOP_SELLER
+  EMERGENCY_HERO
+  EVENT_ORGANIZER
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  FLAGGED_SPAM
+  FLAGGED_TOXIC
+  FLAGGED_SCAM
+  QUARANTINED
+}
+
+enum NotificationType {
+  NEW_MESSAGE
+  COMMENT
+  MENTION
+  MARKETPLACE_INQUIRY
+  EVENT_REMINDER
+  EMERGENCY_ALERT
+  GROUP_ACTIVITY
+}
+
+model User {
+  id              String            @id // Clerk ID
+  email           String            @unique
+  name            String?
+  avatar          String?
+  bio             String?
+  role            Role              @default(USER)
+  
+  // Advanced Verification Levels
+  emailVerified    Boolean          @default(false)
+  phoneVerified    Boolean          @default(false)
+  societyVerified  Boolean          @default(false)
+  residentVerified Boolean          @default(false)
+  sellerVerified   Boolean          @default(false)
+  
+  // Reputation & Score
+  trustScore      Int               @default(100)
+  points          Int               @default(0)
+  badges          ReputationBadge[] @default([])
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // FCM Push Notifications
+  fcmToken        String?
+
+  // Location Details
+  locationId      String?
+  location        Location?         @relation(fields: [locationId], references: [id])
+  
+  // First-Class Society Association
+  societyId       String?
+  society         Society?          @relation("SocietyMembers", fields: [societyId], references: [id])
+  societyName     String?
+
+  // Relations
+  posts           Post[]
+  comments        Comment[]
+  votes           PollVote[]
+  upvotes         PostUpvote[]
+  listings        MarketplaceListing[]
+  organizedEvents Event[]
+  rsvps           EventRSVP[]
+  sentMessages    Message[]         @relation("SentMessages")
+  receivedMessages Message[]        @relation("ReceivedMessages")
+  chatMemberships ChatMember[]
+  groupsCreated   CommunityGroup[]  @relation("GroupCreator")
+  groupMemberships GroupMember[]
+  businessesOwned BusinessProfile[]
+  businessReviews BusinessReview[]
+  servicesOwned   ServiceProfile[]
+  serviceReviews  ServiceReview[]
+  sosAlertsCreated EmergencySOS[]   @relation("SOSCreator")
+  sosVolunteered  EmergencyVolunteer[]
+  sosUpdates      EmergencyUpdate[]
+  notifications   Notification[]
+  reportsCreated  Report[]          @relation("Reporter")
+  reportsAgainst  Report[]          @relation("ReportedUser")
+  blocksCreated   Block[]           @relation("Blocker")
+  blocksReceived  Block[]           @relation("Blocked")
+  mutesCreated    Mute[]            @relation("Muter")
+  mutesReceived   Mute[]            @relation("Muted")
+  
+  // Saved content relations
+  savedPosts      SavedPost[]
+  savedListings   SavedMarketplaceListing[]
+  savedEvents     SavedEvent[]
+  savedBusinesses SavedBusiness[]
+  savedServices   SavedService[]
+
+  // Advanced Society Admin/Verifications
+  adminSocieties  Society[]         @relation("SocietyAdmins")
+  createdSocieties Society[]        @relation("SocietyCreator")
+  societyRequests SocietyVerificationRequest[]
+  communityRequests CommunityRequest[]
+  requestComments  RequestComment[]
+  lostItems       LostAndFound[]
+  jobsPosted      JobListing[]
+  jobApplications JobApplication[]
+  viewsHistory    RecentlyViewed[]
+  societyAnnouncements SocietyAnnouncement[]
+}
+
+model Society {
+  id                  String               @id @default(uuid())
+  name                String               // e.g. Gaur City, DLF Phase 3
+  description         String?
+  coverImage          String?
+  locationId          String
+  location            Location             @relation(fields: [locationId], references: [id])
+  createdById         String
+  createdBy           User                 @relation("SocietyCreator", fields: [createdById], references: [id])
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  // Members & Admins
+  admins              User[]               @relation("SocietyAdmins")
+  members             User[]               @relation("SocietyMembers")
+
+  // Sub-features
+  posts               Post[]
+  events              Event[]
+  chatGroup           ChatGroup?
+  announcements       SocietyAnnouncement[]
+  verificationRequests SocietyVerificationRequest[]
+}
+
+model SocietyAnnouncement {
+  id        String   @id @default(uuid())
+  societyId String
+  society   Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model SocietyVerificationRequest {
+  id          String   @id @default(uuid())
+  societyId   String
+  society     Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentUrl String?  // e.g., utility bill or proof of residence
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CommunityRequest {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    String   // Tutor, Flatmate, Charger, Recommendations
+  status      String   @default("OPEN") // OPEN, RESOLVED
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  locationId  String
+  location    Location @relation(fields: [locationId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  comments    RequestComment[]
+}
+
+model RequestComment {
+  id        String           @id @default(uuid())
+  requestId String
+  request   CommunityRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime         @default(now())
+}
+
+model LostAndFound {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  imageUrl    String?
+  type        String   // LOST, FOUND
+  status      String   @default("ACTIVE") // ACTIVE, RESOLVED
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  locationId  String
+  location    Location @relation(fields: [locationId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model JobListing {
+  id          String           @id @default(uuid())
+  title       String
+  description String
+  category    String           // Internship, Driver, Tutor, Maid, Part-time
+  salary      String?
+  employerId  String
+  employer    User             @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  locationId  String
+  location    Location         @relation(fields: [locationId], references: [id])
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  applications JobApplication[]
+}
+
+model JobApplication {
+  id          String     @id @default(uuid())
+  jobId       String
+  job         JobListing @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicantId String
+  applicant   User       @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  coverLetter String?
+  resumeUrl   String?
+  createdAt   DateTime   @default(now())
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  country   String   @default("India")
+  state     String
+  city      String
+  area      String   // Neighborhood or sub-locality
+  pincode   String
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
+
+  // Relations
+  users             User[]
+  societies         Society[]
+  posts             Post[]
+  listings          MarketplaceListing[]
+  events            Event[]
+  groups            CommunityGroup[]
+  businesses        BusinessProfile[]
+  services          ServiceProfile[]
+  sosAlerts         EmergencySOS[]
+  chatGroups        ChatGroup[]
+  communityRequests CommunityRequest[]
+  lostItems         LostAndFound[]
+  jobs              JobListing[]
+}
+
+model Post {
+  id               String            @id @default(uuid())
+  authorId         String
+  author           User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content          String
+  mediaUrls        String[]          @default([])
+  postType         PostType          @default(GENERAL)
+  emergencyCat     EmergencyCategory?
+  locationId       String
+  location         Location          @relation(fields: [locationId], references: [id])
+  
+  // First-Class Society Posting
+  societyId        String?
+  society          Society?          @relation(fields: [societyId], references: [id], onDelete: Cascade)
+
+  // Optional Group Posting
+  groupId          String?
+  group            CommunityGroup?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  
+  // Optional Business Posting
+  businessId       String?
+  business         BusinessProfile?  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  // AI Moderation & Metadata
+  moderationStatus ModerationStatus  @default(PENDING)
+  moderationReason String?
+  categoryTags     String[]          @default([])
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  // Relations
+  comments         Comment[]
+  pollOptions      PollOption[]
+  upvotes          PostUpvote[]
+  savedBy          SavedPost[]
+}
+
+model PollOption {
+  id        String     @id @default(uuid())
+  postId    String
+  post      Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  text      String
+  votes     PollVote[]
+}
+
+model PollVote {
+  id       String     @id @default(uuid())
+  userId   String
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  optionId String
+  option   PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, optionId])
+}
+
+model PostUpvote {
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, postId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  parentId  String?
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommunityGroup {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  coverImage  String?
+  isPrivate   Boolean       @default(false)
+  inviteCode  String?       @unique
+  locationId  String
+  location    Location      @relation(fields: [locationId], references: [id])
+  createdById String
+  createdBy   User          @relation("GroupCreator", fields: [createdById], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  members     GroupMember[]
+  posts       Post[]
+  chatGroup   ChatGroup?
+}
+
+model GroupMember {
+  id        String         @id @default(uuid())
+  groupId   String
+  group     CommunityGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isMod     Boolean        @default(false)
+  joinedAt  DateTime       @default(now())
+
+  @@unique([groupId, userId])
+}
+
+model BusinessProfile {
+  id           String           @id @default(uuid())
+  name         String
+  description  String?
+  category     String           // Tutors, Plumbers, Gyms, Doctors, Clinics, Restaurants, etc.
+  coverImage   String?
+  ownerId      String
+  owner        User             @relation(fields: [ownerId], references: [id])
+  contactPhone String?
+  contactEmail String?
+  website      String?
+  isVerified   Boolean          @default(false)
+  serviceAreas String[]         @default([]) 
+  locationId   String
+  location     Location         @relation(fields: [locationId], references: [id])
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  // Relations
+  reviews      BusinessReview[]
+  posts        Post[]
+  savedBy      SavedBusiness[]
+}
+
+model BusinessReview {
+  id         String          @id @default(uuid())
+  businessId String
+  business   BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  rating     Int
+  comment    String?
+  createdAt  DateTime        @default(now())
+}
+
+model ServiceProfile {
+  id           String          @id @default(uuid())
+  title        String
+  description  String
+  category     String          // Tutors, Plumbers, Electricians, Cooks, Freelancers, Housekeeping, etc.
+  pricingRate  Float?
+  pricingUnit  String?         // e.g. "per hour", "per visit", "fixed"
+  availability String?         // e.g. "Mon-Fri 9AM - 6PM"
+  providerId   String
+  provider     User            @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  locationId   String
+  location     Location        @relation(fields: [locationId], references: [id])
+  isVerified   Boolean         @default(false)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  // Relations
+  reviews      ServiceReview[]
+  savedBy      SavedService[]
+}
+
+model ServiceReview {
+  id        String         @id @default(uuid())
+  serviceId String
+  service   ServiceProfile @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  authorId  String
+  author     User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime       @default(now())
+}
+
+model MarketplaceListing {
+  id               String            @id @default(uuid())
+  title            String
+  description      String
+  price            Float
+  negotiable       Boolean           @default(false)
+  condition        String            // NEW, LIKE_NEW, GOOD, FAIR
+  listingType      ListingType       @default(SELL)
+  category         ListingCategory   @default(OTHER)
+  status           ListingStatus     @default(AVAILABLE)
+  mediaUrls        String[]          @default([])
+  boosted          Boolean           @default(false)
+
+  // Seller & Location
+  sellerId         String
+  seller           User              @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  locationId       String
+  location         Location          @relation(fields: [locationId], references: [id])
+  
+  // AI Moderation
+  moderationStatus ModerationStatus  @default(PENDING)
+  moderationReason String?
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  // Relations
+  savedBy          SavedMarketplaceListing[]
+}
+
+model EmergencySOS {
+  id               String            @id @default(uuid())
+  title            String
+  description      String
+  category         EmergencyCategory
+  status           String            @default("ACTIVE") // ACTIVE, RESOLVED
+  authorId         String
+  author           User              @relation("SOSCreator", fields: [authorId], references: [id], onDelete: Cascade)
+  locationId       String
+  location         Location          @relation(fields: [locationId], references: [id])
+  latitude         Float?
+  longitude        Float?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  // Relations
+  volunteers       EmergencyVolunteer[]
+  updates          EmergencyUpdate[]
+}
+
+model EmergencyVolunteer {
+  id        String       @id @default(uuid())
+  sosId     String
+  sos       EmergencySOS @relation(fields: [sosId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([sosId, userId])
+}
+
+model EmergencyUpdate {
+  id        String       @id @default(uuid())
+  sosId     String
+  sos       EmergencySOS @relation(fields: [sosId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime     @default(now())
+}
+
+model Event {
+  id          String      @id @default(uuid())
+  title       String
+  description String
+  coverImage  String?
+  startDate   DateTime
+  endDate     DateTime
+  organizerId String
+  organizer   User        @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  locationId  String
+  location    Location    @relation(fields: [locationId], references: [id])
+  societyId   String?
+  society     Society?    @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  status      EventStatus @default(UPCOMING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  rsvps       EventRSVP[]
+  chatGroup   ChatGroup?
+  savedBy     SavedEvent[]
+}
+
+model EventRSVP {
+  id        String     @id @default(uuid())
+  eventId   String
+  event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    RSVPStatus @default(GOING)
+  createdAt DateTime   @default(now())
+
+  @@unique([eventId, userId])
+}
+
+model ChatGroup {
+  id          String       @id @default(uuid())
+  name        String?      
+  isPrivate   Boolean      @default(false)
+  
+  // Real-Time Scope links
+  isEventChat Boolean      @default(false)
+  eventId     String?      @unique
+  event       Event?       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  groupId     String?      @unique
+  group       CommunityGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  societyId   String?      @unique
+  society     Society?     @relation(fields: [societyId], references: [id], onDelete: Cascade)
+
+  locationId  String?
+  location    Location?    @relation(fields: [locationId], references: [id])
+  createdAt   DateTime     @default(now())
+
+  // Relations
+  members     ChatMember[]
+  messages    Message[]
+}
+
+model ChatMember {
+  id          String    @id @default(uuid())
+  groupId     String
+  group       ChatGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime  @default(now())
+
+  @@unique([groupId, userId])
+}
+
+model Message {
+  id         String     @id @default(uuid())
+  groupId    String
+  group      ChatGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  senderId   String
+  sender     User       @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String?    
+  receiver   User?      @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  content    String
+  mediaUrl   String?
+  createdAt  DateTime   @default(now())
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  payload   Json?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}
+
+model Report {
+  id             String   @id @default(uuid())
+  reporterId     String
+  reporter       User     @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUserId String?
+  reportedUser   User?    @relation("ReportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  targetType     String   // e.g. "POST", "COMMENT", "LISTING", "BUSINESS", "GROUP"
+  targetId       String
+  reason         String
+  status         String   @default("PENDING") // PENDING, RESOLVED, DISMISSED
+  createdAt      DateTime @default(now())
+}
+
+model Block {
+  id        String   @id @default(uuid())
+  blockerId String
+  blocker   User     @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+}
+
+model Mute {
+  id        String   @id @default(uuid())
+  muterId   String
+  muter     User     @relation("Muter", fields: [muterId], references: [id], onDelete: Cascade)
+  mutedId   String
+  muted     User     @relation("Muted", fields: [mutedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([muterId, mutedId])
+}
+
+// Recently Viewed Items Tracker
+model RecentlyViewed {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetType String   // "MARKETPLACE", "BUSINESS", "SERVICE"
+  targetId   String
+  viewedAt   DateTime @default(now())
+}
+
+// Saved Content Join Tables
+model SavedPost {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model SavedMarketplaceListing {
+  id        String             @id @default(uuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime           @default(now())
+
+  @@unique([userId, listingId])
+}
+
+model SavedEvent {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, eventId])
+}
+
+model SavedBusiness {
+  id         String          @id @default(uuid())
+  userId     String
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessId String
+  business   BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime        @default(now())
+
+  @@unique([userId, businessId])
+}
+
+model SavedService {
+  id        String         @id @default(uuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceId String
+  service   ServiceProfile @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+
+  @@unique([userId, serviceId])
+}
