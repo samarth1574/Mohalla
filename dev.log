@@ -1,0 +1,76 @@
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.2:3000
+- Environments: .env
+✓ Ready in 596ms
+
+ HEAD / 200 in 1195ms (next.js: 523ms, proxy.ts: 287ms, application-code: 385ms)
+ HEAD /sign-in 200 in 5.9s (next.js: 5.9s, proxy.ts: 5ms, application-code: 66ms)
+node(56323) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+node(56324) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+✓ Finished writing to filesystem cache in 10.5s
+✓ Finished filesystem cache database compaction in 23.6s
+
+-----
+[1m[31mFATAL[39m[0m: An unexpected Turbopack error occurred. A panic log has been written to /var/folders/s8/8n_vxwv92s5565m9xy44k2dw0000gn/T/next-panic-d51f630eb6dc3e0e5ef93042c3a79693.log.
+
+To help make Turbopack better, report this error by clicking here: https://bugs.nextjs.org/search?category=turbopack-error-report&title=Turbopack%20Error%3A%20File%20is%20not%20valid%20JSON%3A%20EOF%20while%20parsing%20a%20value%20at%20line%201%20column%200%20%20at%20.&body=Turbopack%20version%3A%20%60f37fad94%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0AFile%20is%20not%20valid%20JSON%3A%20EOF%20while%20parsing%20a%20value%20at%20line%201%20column%200%20%20at%20.%0A%0ADebug%20info%3A%0A-%20Execution%20of%20subscribe_issues_and_diags_operation%20failed%0A-%20Execution%20of%20endpoint_server_changed_operation%20failed%0A-%20Execution%20of%20pick_endpoint%20failed%0A-%20Execution%20of%20entrypoints_without_collectibles_operation%20failed%0A-%20Execution%20of%20Project%3A%3Aentrypoints_with_app_route_filter%20failed%0A-%20Execution%20of%20Project%3A%3Amiddleware_endpoint%20failed%0A-%20Execution%20of%20%2AMiddlewareEndpoint%3A%3Anew%20failed%0A-%20Execution%20of%20Project%3A%3Anode_middleware_context%20failed%0A-%20Execution%20of%20AppProject%3A%3Aedge_ecmascript_client_reference_transition%20failed%0A-%20Execution%20of%20%2ANextEcmascriptClientReferenceTransition%3A%3Anew%20failed%0A-%20Execution%20of%20AppProject%3A%3Aclient_transition%20failed%0A-%20Execution%20of%20%2AFullContextTransition%3A%3Anew%20failed%0A-%20Execution%20of%20AppProject%3A%3Aclient_module_context%20failed%0A-%20Execution%20of%20%2AModuleAssetContext%3A%3Anew%20failed%0A-%20Execution%20of%20get_client_module_options_context%20failed%0A-%20Execution%20of%20%2Aget_jsx_transform_options%20failed%0A-%20Execution%20of%20get_client_resolve_options_context%20failed%0A-%20Execution%20of%20get_transpiled_packages%20failed%0A-%20File%20is%20not%20valid%20JSON%3A%20EOF%20while%20parsing%20a%20value%20at%20line%201%20column%200%20%20at%20.%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
+-----
+
+node(64438) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Turbopack build encountered 2 errors:
+./node_modules/next/package.json:1:1
+Error parsing package.json file
+package.json is not parseable: invalid JSON: EOF while parsing a value at line 1 column 0
+
+
+./package.json:1:1
+Error parsing package.json file
+package.json is not parseable: invalid JSON: EOF while parsing a value at line 1 column 0
+
+
+
+-----
+[1m[31mFATAL[39m[0m: An unexpected Turbopack error occurred. A panic log has been written to /var/folders/s8/8n_vxwv92s5565m9xy44k2dw0000gn/T/next-panic-d51f630eb6dc3e0e5ef93042c3a79693.log.
+
+To help make Turbopack better, report this error by clicking here: https://bugs.nextjs.org/search?category=turbopack-error-report&title=Turbopack%20Error%3A%20File%20is%20not%20valid%20JSON%3A%20EOF%20while%20parsing%20a%20value%20at%20line%201%20column%200%20%20at%20.&body=Turbopack%20version%3A%20%60f37fad94%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0AFile%20is%20not%20valid%20JSON%3A%20EOF%20while%20parsing%20a%20value%20at%20line%201%20column%200%20%20at%20.%0A%0ADebug%20info%3A%0A-%20Execution%20of%20subscribe_issues_and_diags_operation%20failed%0A-%20Execution%20of%20pick_endpoint%20failed%0A-%20Execution%20of%20entrypoints_without_collectibles_operation%20failed%0A-%20Execution%20of%20Project%3A%3Aentrypoints_with_app_route_filter%20failed%0A-%20Execution%20of%20Project%3A%3Amiddleware_endpoint%20failed%0A-%20Execution%20of%20%2AMiddlewareEndpoint%3A%3Anew%20failed%0A-%20Execution%20of%20Project%3A%3Anode_middleware_context%20failed%0A-%20Execution%20of%20AppProject%3A%3Aedge_ecmascript_client_reference_transition%20failed%0A-%20Execution%20of%20%2ANextEcmascriptClientReferenceTransition%3A%3Anew%20failed%0A-%20Execution%20of%20AppProject%3A%3Aclient_transition%20failed%0A-%20Execution%20of%20%2AFullContextTransition%3A%3Anew%20failed%0A-%20Execution%20of%20AppProject%3A%3Aclient_module_context%20failed%0A-%20Execution%20of%20%2AModuleAssetContext%3A%3Anew%20failed%0A-%20Execution%20of%20get_client_module_options_context%20failed%0A-%20Execution%20of%20%2Aget_jsx_transform_options%20failed%0A-%20Execution%20of%20get_client_resolve_options_context%20failed%0A-%20Execution%20of%20get_transpiled_packages%20failed%0A-%20File%20is%20not%20valid%20JSON%3A%20EOF%20while%20parsing%20a%20value%20at%20line%201%20column%200%20%20at%20.%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
+-----
+
+✓ Compiled in 222.1s
+Turbopack build encountered 1 errors:
+./package.json:1:1
+Error parsing package.json file
+package.json is not parseable: invalid JSON: EOF while parsing a value at line 1 column 0
+
+
+
+-----
+[1m[31mFATAL[39m[0m: An unexpected Turbopack error occurred. A panic log has been written to /var/folders/s8/8n_vxwv92s5565m9xy44k2dw0000gn/T/next-panic-d51f630eb6dc3e0e5ef93042c3a79693.log.
+
+To help make Turbopack better, report this error by clicking here: https://bugs.nextjs.org/search?category=turbopack-error-report&title=Turbopack%20Error%3A%20File%20is%20not%20valid%20JSON%3A%20EOF%20while%20parsing%20a%20value%20at%20line%201%20column%200%20%20at%20.&body=Turbopack%20version%3A%20%60f37fad94%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0AFile%20is%20not%20valid%20JSON%3A%20EOF%20while%20parsing%20a%20value%20at%20line%201%20column%200%20%20at%20.%0A%0ADebug%20info%3A%0A-%20Execution%20of%20get_entrypoints_with_issues_operation%20failed%0A-%20Execution%20of%20EntrypointsOperation%3A%3Anew%20failed%0A-%20Execution%20of%20Project%3A%3Aentrypoints_with_app_route_filter%20failed%0A-%20Execution%20of%20Project%3A%3Amiddleware_endpoint%20failed%0A-%20Execution%20of%20%2AMiddlewareEndpoint%3A%3Anew%20failed%0A-%20Execution%20of%20Project%3A%3Anode_middleware_context%20failed%0A-%20Execution%20of%20AppProject%3A%3Aedge_ecmascript_client_reference_transition%20failed%0A-%20Execution%20of%20%2ANextEcmascriptClientReferenceTransition%3A%3Anew%20failed%0A-%20Execution%20of%20AppProject%3A%3Aclient_transition%20failed%0A-%20Execution%20of%20%2AFullContextTransition%3A%3Anew%20failed%0A-%20Execution%20of%20AppProject%3A%3Aclient_module_context%20failed%0A-%20Execution%20of%20%2AModuleAssetContext%3A%3Anew%20failed%0A-%20Execution%20of%20get_client_module_options_context%20failed%0A-%20Execution%20of%20%2Aget_jsx_transform_options%20failed%0A-%20Execution%20of%20get_client_resolve_options_context%20failed%0A-%20Execution%20of%20get_transpiled_packages%20failed%0A-%20File%20is%20not%20valid%20JSON%3A%20EOF%20while%20parsing%20a%20value%20at%20line%201%20column%200%20%20at%20.%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
+-----
+
+Error [TurbopackInternalError]: File is not valid JSON: EOF while parsing a value at line 1 column 0  at .
+
+Debug info:
+- Execution of get_entrypoints_with_issues_operation failed
+- Execution of EntrypointsOperation::new failed
+- Execution of Project::entrypoints_with_app_route_filter failed
+- Execution of Project::middleware_endpoint failed
+- Execution of *MiddlewareEndpoint::new failed
+- Execution of Project::node_middleware_context failed
+- Execution of AppProject::edge_ecmascript_client_reference_transition failed
+- Execution of *NextEcmascriptClientReferenceTransition::new failed
+- Execution of AppProject::client_transition failed
+- Execution of *FullContextTransition::new failed
+- Execution of AppProject::client_module_context failed
+- Execution of *ModuleAssetContext::new failed
+- Execution of get_client_module_options_context failed
+- Execution of *get_jsx_transform_options failed
+- Execution of get_client_resolve_options_context failed
+- Execution of get_transpiled_packages failed
+- File is not valid JSON: EOF while parsing a value at line 1 column 0  at .
+    at <unknown> (TurbopackInternalError: File is not valid JSON: EOF while parsing a value at line 1 column 0  at .) {
+  location: undefined
+}
+[?25h

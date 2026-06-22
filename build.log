@@ -1,0 +1,44 @@
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 11.9min
+  Running TypeScript ...
+  Finished TypeScript in 118s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/19) ...
+  Generating static pages using 7 workers (4/19) 
+  Generating static pages using 7 workers (9/19) 
+  Generating static pages using 7 workers (14/19) 
+✓ Generating static pages using 7 workers (19/19) in 373ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /admin
+├ ƒ /api/fcm/save-token
+├ ƒ /api/messages/[groupId]
+├ ƒ /api/webhooks/clerk
+├ ƒ /emergency
+├ ƒ /feed
+├ ƒ /heatmap
+├ ƒ /jobs
+├ ƒ /jobs/[id]
+├ ƒ /lost-found
+├ ƒ /marketplace
+├ ƒ /messages
+├ ƒ /notifications
+├ ƒ /onboarding
+├ ƒ /requests
+├ ƒ /saved
+├ ƒ /sign-in/[[...sign-in]]
+├ ƒ /sign-up/[[...sign-up]]
+└ ƒ /societies
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
